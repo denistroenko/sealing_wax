@@ -171,8 +171,14 @@ class EmailSender:
         self.__use_ssl = None
         self.__port = 0
 
-    def configure(self, smtp_hostname: str, login: str, password: str,
-                 from_address: str, use_ssl: bool = True, port: int = 465):
+    def configure(self,
+                  smtp_hostname: str,
+                  login: str,
+                  password: str,
+                  from_address: str,
+                  use_ssl: bool = True,
+                  port: int = 465,
+                  ):
         self.__host = smtp_hostname
         self.__login = login
         self.__password = password
