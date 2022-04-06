@@ -14,6 +14,18 @@ class Section():
         for key in section_dict:
             setattr(self, key, section_dict[key])
 
+    def __getattr__(self, attr):
+        """
+        If exist attr, returned attr.
+        Else returned section
+        """
+        try:
+            return getattr(self, attr)
+        except Exception:
+            return None
+
+
+
 
 # need edit for pep8!!!!!!!!!!!!!!!!!!!!!!!!
 class Config:
@@ -29,7 +41,7 @@ class Config:
     def __getattr__(self, attr):
         """
         If exist attr, returned attr.
-        Else returned
+        Else returned section
         """
         try:
             return getattr(self, attr)

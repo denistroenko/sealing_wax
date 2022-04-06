@@ -2,14 +2,16 @@
 Sealing Wax - software for regulag mail sending.
 """
 
-from baseapplib import get_script_dir, EmailSender
+import logging
+from baseapplib import get_script_dir, EmailSender, configure_logger
 from config import Config
 
 
 # Global
-config = Config()
-config_list = Config()
-sender = EmailSender()
+config = Config()       # объект основной конфигурации
+config_list = Config()  # объект конфигурации списка рассылки
+sender = EmailSender()  # объект отправителя email
+logger = logging.getLogger()
 
 
 def load_config():
@@ -29,15 +31,33 @@ def load_config():
     config_list.read_file(f'{script_dir}{config_list_file_name}')
 
 def configure_email_sender():
-    pass
-    #smtp_hostname =
-    #sender.configure(smtp_hostname = '',
-    #                 login = '',
-    #                 password = '',
-    #                 from_address = '',
-    #                 use_ssl = '',
-    #                 port = ''
-    #                 )
+    smtp_hostname = config.smtp.server
+    login = config.smtp.user
+    password = config.smtp.password
+
+    from_address = login
+    if config.smtp.address:
+        from_address = config.smtp.address
+
+    use_ssl = False
+    if config.smtp.ssl.lower() == 'yes':
+        use_ssl = True
+
+    port = 465
+    if config.smtp.port:
+        port = config.smtp.port
+
+
+    logger.debug(f'{smtp_hostname}, {login}, {password}, {from_address}, ' \
+                 + f'{use_ssl}, {port}')
+
+    sender.configure(smtp_hostname=smtp_hostname ,
+                     login=login,
+                     password=password,
+                     from_address=from_address,
+                     use_ssl=use_ssl,
+                     port=port,
+                     )
 
 
 def send_to_all():
@@ -55,6 +75,8 @@ def send_to_all():
 
 
 def main():
+    configure_logger(logger)
+    logger.debug('### ### ### ## ## # Start program... # ## ## ### ### ###')
     load_config()
     configure_email_sender()
     send_to_all()

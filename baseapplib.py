@@ -162,7 +162,6 @@ class PasswordGenerator:
 
 # need edit for pep8!!!!!!!!!!!!!!!!!!!!!!!!
 class EmailSender:
-
     def __init__(self):
         self.__host = ''
         self.__login = ''
