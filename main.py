@@ -30,6 +30,7 @@ def load_config():
     config.read_file(f'{script_dir}{config_file_name}')
     config_list.read_file(f'{script_dir}{config_list_file_name}')
 
+
 def configure_email_sender():
     smtp_hostname = config.smtp.server
     login = config.smtp.user
@@ -49,9 +50,9 @@ def configure_email_sender():
 
 
     logger.debug(f'{smtp_hostname}, {login}, {password}, {from_address}, ' \
-                 + f'{use_ssl}, {port}')
+            + f'{use_ssl}, {port}')
 
-    sender.configure(smtp_hostname=smtp_hostname ,
+    sender.configure(smtp_hostname=smtp_hostname,
                      login=login,
                      password=password,
                      from_address=from_address,
@@ -66,16 +67,30 @@ def send_to_all():
     Список получателей и имен файлов должен быть в config_list,
     в секции [main]
     """
+    # Получить тему сообщения
+    subject = 'Sealing Wax message'
+    if config.smtp.subject:
+        subject = config.smtp.subject
+
+    # Получить текст сообщения
+    message = 'Sealing Wax message'
+    if config.smtp.message:
+        subject = config.smtp.message
+
     # Получить список отправителей и файлов
     settings = config_list.get_section_dict('main')
 
     # Пройти по каждому получателю и отправить необходимый файл
     for setting in settings:
-        print(setting, 'Отправить %s' % settings[setting])
+        logger.info(f'Sending to {setting}...')
+        try:
+            sender.send_email(setting, subject, message)
+        except Exception:
+            logger.info('ERROR')
 
 
 def main():
-    configure_logger(logger)
+    configure_logger(logger, screen_logging=True)
     logger.debug('### ### ### ## ## # Start program... # ## ## ### ### ###')
     load_config()
     configure_email_sender()
