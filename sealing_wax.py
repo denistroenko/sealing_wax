@@ -97,7 +97,12 @@ def send_to_all():
     for setting in settings:
         logger.info(f'Sending to {setting}...')
         try:
-            sender.send_email(setting, subject, message)
+            attachment_files = [].append(settings[setting])
+            sender.send_email(to_address=setting,
+                              subject=subject,
+                              message=message,
+                              attachment_files=attachment_files,
+                              )
         except Exception:
             logger.debug(Exception, exc_info = True)
             logger.error('Возникла ошибка. Завершение работы.')
