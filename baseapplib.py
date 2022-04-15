@@ -4,11 +4,15 @@ __version__ = '0.0.17'
 import random
 import smtplib
 import os
+from os.path import basename
 import inspect
 import sys
 import logging
 import logging.handlers
+from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from email.mime.application import MIMEApplication
+from email.utils import formatdate
 
 
 def get_script_dir(follow_symlinks=True):
@@ -177,6 +181,7 @@ class EmailSender:
                   from_address: str,
                   use_ssl: bool = True,
                   port: int = 465,
+                  attachments: tuple = (),
                   ):
         self.__host = smtp_hostname
         self.__login = login
@@ -184,19 +189,35 @@ class EmailSender:
         self.__from = from_address
         self.__use_ssl = use_ssl
         self.__port = port
+        self.__attachments = attachments
 
     def send_email(self, to_address: str, subject: str, message: str,
-                   use_html_format: bool = False):
+                   use_html_format: bool = False, attachment_files: list = []):
+        # Message object
+        msg = MIMEMultipart()
 
-        if use_html_format:
-            msg = MIMEText(message, "html", "utf-8")
-        else:
-            msg = MIMEText(message, "plain", "utf-8")
-
+        # Set message properties
         msg['Subject'] = subject
         msg['From'] = self.__from
         msg['To'] = to_address
+        msg['Date'] = formatdate(localtime=True)
 
+        # Attach text to message
+        if use_html_format:
+            msg.attach(MIMEText(message, "html", "utf-8"))
+        else:
+            msg.attach(MIMEText(message, "plain", "utf-8"))
+
+        # Attach files
+        for attachment_file in attachment_files:
+             with open(attachment_file, "rb") as attachment:
+                 part = MIMEApplication(attachment.read(),
+                                        Name=basename(attachment))
+                 part['Content-Disposition'] = (
+                        'attachment; filename="%s"' % basename(attachment))
+                 msg.attach(part)
+
+        # Server choice
         if self.__use_ssl:
             server = smtplib.SMTP_SSL(self.__host, self.__port)
         else:
