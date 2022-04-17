@@ -181,7 +181,6 @@ class EmailSender:
                   from_address: str,
                   use_ssl: bool = True,
                   port: int = 465,
-                  attachments: tuple = (),
                   ):
         self.__host = smtp_hostname
         self.__login = login
@@ -189,10 +188,9 @@ class EmailSender:
         self.__from = from_address
         self.__use_ssl = use_ssl
         self.__port = port
-        self.__attachments = attachments
 
     def send_email(self, to_address: str, subject: str, message: str,
-                   use_html_format: bool = False, attachment_files: list = []):
+                   use_html_format: bool = False, attachment_files: tuple = ()):
         # Message object
         msg = MIMEMultipart()
 
@@ -210,11 +208,11 @@ class EmailSender:
 
         # Attach files
         for attachment_file in attachment_files:
-             with open(attachment_file, "rb") as attachment:
+            with open(attachment_file, "rb") as attachment:
                  part = MIMEApplication(attachment.read(),
-                                        Name=basename(attachment))
+                                        Name=basename(attachment_file))
                  part['Content-Disposition'] = (
-                        'attachment; filename="%s"' % basename(attachment))
+                        'attachment; filename="%s"' % basename(attachment_file))
                  msg.attach(part)
 
         # Server choice

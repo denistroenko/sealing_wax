@@ -97,7 +97,9 @@ def send_to_all():
     for setting in settings:
         logger.info(f'Sending to {setting}...')
         try:
-            attachment_files = [].append(settings[setting])
+            attachment_files = []
+            attachment_files.append(f'{get_script_dir()}{settings[setting]}')
+            logger.debug(f'attachment files: {attachment_files}')
             sender.send_email(to_address=setting,
                               subject=subject,
                               message=message,
