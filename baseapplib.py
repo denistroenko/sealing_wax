@@ -30,22 +30,23 @@ def get_script_dir(follow_symlinks=True):
 
 def configure_logger(
         logger: object,
-        screen_logging: bool=False,
-        debug_file_name: str='%sdebug.log' % get_script_dir(),
-        error_file_name: str='%serror.log' % get_script_dir(),
-        date_format: str='%Y-%m-%d %H:%M:%S',
-        message_format: str='%(asctime)s [%(name)s] %(levelname)s %(message)s',
+        screen_logging: bool = False,
+        debug_file_name: str = '%sdebug.log' % get_script_dir(),
+        error_file_name: str = '%serror.log' % get_script_dir(),
+        date_format: str = '%Y-%m-%d %H:%M:%S',
+        message_format: str = '%(asctime)s [%(name)s] %(levelname)s %(message)s',
+        start_msg: str = ''
         ):
 
     """
     Стандартная конфигурация логгера. Передаваемый объект логгера должен быть
-    создан на глобальном уровне модуля, в который импортируется эта функция
-    или весь этот модуль.
+    создан на глобальном уровне модуля, в который импортируется эта функция.
 
     logger - Объект логгера
     screen_logging (False) - включить хендлер экрана
     debug_file_name, error_file_name - имена файлов для
     файловых хендлеров (если пустая строка - файловые хендлеры не создаются).
+    start_msg - строка, записываемая в лог при старте
     """
 
     # set level
@@ -63,19 +64,22 @@ def configure_logger(
         screen_handler.setFormatter(screen_formatter)
         logger.addHandler(screen_handler)
 
-    if debug_file_name != '':
+    if debug_file_name:
         file_debug_handler = logging.handlers.RotatingFileHandler(
                 filename=debug_file_name, maxBytes=10485760, backupCount=5)
         file_debug_handler.setLevel(logging.DEBUG)
         file_debug_handler.setFormatter(file_formatter)
         logger.addHandler(file_debug_handler)
 
-    if error_file_name != '':
+    if error_file_name:
         file_error_handler = logging.handlers.RotatingFileHandler(
                 filename=error_file_name, maxBytes=10485760, backupCount=5)
         file_error_handler.setLevel(logging.ERROR)
         file_error_handler.setFormatter(file_formatter)
         logger.addHandler(file_error_handler)
+
+    if start_msg:
+        logger.debug(start_msg)
 
 
 # need edit for pep8!!!!!!!!!!!!!!!!!!!!!!!!
