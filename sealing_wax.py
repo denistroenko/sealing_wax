@@ -4,14 +4,22 @@ from config import Config
 
 
 # Global
-config = Config()       # объект основной конфигурации
-config_list = Config()  # объект конфигурации списка рассылки
-sender = EmailSender()  # объект отправителя email
-logger = logging.getLogger(__name__)  # объект логгера
+config = Config()                     # объект основной конфигурации
+config_list = Config()                # объект конфигурации списка рассылки
+sender = EmailSender()                # объект отправителя email
 script_dir = get_script_dir()         # путь к этому файлу .py
+logger = logging.getLogger(__name__)  # объект логгера
+configure_logger(logger=logger,
+                 debug_file_name=f'{script_dir}log/debug.log',
+                 error_file_name=f'{script_dir}log/error.log',
+                 screen_logging=True,
+                 start_msg='Start "Sealing Wax"!')
 
 
 def load_config_defaults():
+    """
+    Загружает значения настроек по умолчанию.
+    """
     config.set('default', 'template', f'{script_dir}templates/default')
 
 
@@ -34,7 +42,7 @@ def load_config():
                      f' {config_list_file_name}... ')
         config_list.read_file(config_list_file_name, except_if_error=True)
     except Exception:
-        logger.debug(Exception, exc_info = True)
+        logger.debug(Exception, exc_info=True)
         logger.error('Возникла ошибка. Завершение работы.')
         exit()
 
@@ -78,7 +86,7 @@ def configure_email_sender():
                          port=port,
                          )
     except Exception:
-        logger.debug(Exception, exc_info = True)
+        logger.debug(Exception, exc_info=True)
         logger.error('Возникла ошибка. Завершение работы.')
         exit()
 
@@ -101,7 +109,7 @@ def send_to_all():
         # Получить словарь строк. Ключи - email-адреса, значения - имена файлов
         lines :dict = config_list.get_section_dict('main')
     except Exception:
-        logger.debug(Exception, exc_info = True)
+        logger.debug(Exception, exc_info=True)
         logger.error('Возникла ошибка. Завершение работы.')
         exit()
 
@@ -117,9 +125,9 @@ def send_to_all():
             message = message.format(name=address,
                                     file_name=file_name,
                                     )
-            # Инициалицация пустого списка
+            # Инициалицация пустого списка файлов для вложения
             attachment_files = []
-            # Присоединить к списку отправителей текуцего отправителя
+            # Присоединить к списку файлов необходимый файл
             attachment_files.append(f'{script_dir}{lines[address]}')
 
             logger.debug(f'attachment files: {attachment_files}')
@@ -131,14 +139,11 @@ def send_to_all():
                               attachment_files=attachment_files,
                               )
         except Exception:
-            logger.debug(Exception, exc_info = True)
+            logger.debug(Exception, exc_info=True)
             logger.error('Возникла ошибка.')
 
 
 def main():
-    configure_logger(logger=logger,
-                     screen_logging=True,
-                     start_msg='Start "Sealing Wax"!')
     load_config_defaults()
     load_config()
     configure_email_sender()
