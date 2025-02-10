@@ -1,0 +1,10 @@
+[smtp]
+address = robot@a-computers.ru
+server = smtp.yandex.ru
+user = robot@a-computers.ru
+password = 10203040
+ssl = yes
+port = 465
+
+[default]
+#template = ./test
